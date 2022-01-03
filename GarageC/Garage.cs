@@ -6,9 +6,30 @@ using System.Threading.Tasks;
 
 namespace GarageC
 {
-    internal class Garage
+    internal class Garage 
     {
         /* 
+         * https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/xmldoc/recommended-tags
+         * # or hash sign (even number sign or Pound sign)
+         * () Parentheses
+         * [] Brackets or square brackets
+         * {} Braces or curly brackets.
+         * 
+         * Use <para> ... </para> for extra lines within <summary> blocks
+         * REMARK: You MUST put a SPACE after the last >
+         * 
+         * These codes replace reserved chars within text in <summary> blocks
+         * NOTE: Type EXACTLY as given in the first column (&...;)
+         * &lt; 	< 	less than
+         * &gt; 	> 	greater than
+         * &amp;	& 	ampersand 
+         * &apos;	' 	apostrophe
+         * &quot;	" 	quotation mark
+         * 
+         * Garage<T> : IEnumerable<T> where T : Vechicle
+         * T[] vehicles
+         * 
+         * 
          * ToDo1
          *  IMPLEMENTED LATER for the very first main-menu
          *  Requires saving the created garages in a file or database.
@@ -34,39 +55,32 @@ namespace GarageC
         // • used for simple menu testing; the final version should use Garage<T> and an Array
         List<Vehicle> vehicles = new();
 
-        public const string CODE_VERSION_ID = "1.00N"; // N stands for Nordic 
-
-        // default constants based on the building
-        // should be used for validation of code
-        public const double MAX_CEILING_HEIGHT_meters = 7d;
-        public const double MAX_LOT_LENGHT_meters = 12d;
-        public const double MAX_VEHICLE_WEIGHT_kg = 25000;
-        public const int MAX_AMOUNT_PARKING_LOTS = 40;
+        public string ClassTitle { get => "GARAGE"; }
 
         // required properties
         private string name;
-        private int amountParkingLots = MAX_AMOUNT_PARKING_LOTS;
+        private int amountParkingLots = Consts.MAX_AMOUNT_PARKING_LOTS;
 
-        // ToDo: to keep the test menu size down, these values are excluded
-        private string description = "";
-        private string streetAddress = "";
-        private string zipCode = "";
-        private string city = "";
-        private string country = "";
+        // ToDo: to keep the test menu size down, these values are excluded in the test menu
+        private string description = string.Empty;
+        private string streetAddress = string.Empty;
+        private string zipcode = string.Empty;
+        private string city = string.Empty;
+        private string country = string.Empty;
 
-        public string Name { get => name; set => name = Tools.TextToSentence(value); }
-        public string Description { get => description; set => description = Tools.TextToSentence(value); }
-        public string StreetAddress { get => streetAddress; set => streetAddress = Tools.TextToSentence(value); }
-        public string ZipCode { get => zipCode; set => zipCode = Tools.TextToSentence(value); }
-        public string City { get => city; set => city = Tools.TextToSentence(value); }
-        public string Country { get => country; set => country = Tools.TextToSentence(value); }
+        public string Name { get => name; set => name = Tool.TextToSentence(value); }
+        public string Description { get => description; set => description = Tool.TextToSentence(value); }
+        public string StreetAddress { get => streetAddress; set => streetAddress = Tool.TextToSentence(value); }
+        public string Zipcode { get => zipcode; set => zipcode = Tool.TextToSentence(value); }
+        public string City { get => city; set => city = Tool.TextToSentence(value); }
+        public string Country { get => country; set => country = Tool.TextToSentence(value); }
 
-        // ToDo used for testing; optional parameters except the name
-        public Garage(string name, string streeetAddress, string zipCode, string city, string country)
+        // ToDo  Remove late: Used for testing; sets all the optional parameters
+        public Garage(string name, string streetAddress, string zipcode, string city, string country)
         {
             this.name = name;
-            this.streetAddress = streeetAddress;
-            this.zipCode = zipCode;
+            this.streetAddress = streetAddress;
+            this.zipcode = zipcode;
             this.city = city;
             this.country = country;
             amountGarages++;
@@ -77,9 +91,9 @@ namespace GarageC
             if (string.IsNullOrWhiteSpace(name))
                 this.name = "#NAME_MISSING!";
             else
-                this.name = Tools.TextToSentence(name);
+                this.name = Tool.TextToSentence(name);
 
-            if (!Tools.WithinRange(amountParkingLots, 1, MAX_AMOUNT_PARKING_LOTS))
+            if (!Tool.WithinRange(amountParkingLots, 1, Consts.MAX_AMOUNT_PARKING_LOTS))
                 // the default of MAX_AMOUNT_PARKING_LOTS is kept
                 throw new ArgumentException("The caller should check Garage.MAX_AMOUNT_PARKING_LOTS to prevent this exception!");
             else
@@ -88,46 +102,52 @@ namespace GarageC
             amountGarages++;
         }
 
-        public bool RegNoExist(string regNo)
+        /// <summary>
+        /// determines if regNo is used by any parked vehicle.
+        /// <para> • intended for the Menu-system to forbid/warn regNo-doublets.</para> 
+        /// </summary>
+        /// <param name="regNo"></param>
+        public bool UsedRegNo(string regNo)
         {
-            foreach(Vehicle v in vehicles)
+            foreach (Vehicle v in vehicles)
             {
                 if (string.Equals(regNo, v.RegNo, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
             return false;
         }
-
+        
+        /// <summary>
+        /// returns a nicely formated string of all the Garage properties.
+        /// </summary>
         public string ToText()
         {
-            StringBuilder s = new();
-            s.AppendLine($"GARAGE {name}");
-            s.AppendLine($"Number of Parking Lots: {amountParkingLots} pcs.");
+            StringBuilder s = new(ConsoleUI.ToTextTitle($"GARAGE : {name}"));
 
-            //if (model.Length > 0)
-            //    s.AppendLine($"Brand: {brand} {model}");
-            //else
-            //    s.AppendLine($"Brand: {brand}");
+            s.AppendLine($"Number of Parking Lots: {amountParkingLots} lots");
+            if (description.Length > 0) s.AppendLine($"Description: {description}");
 
-            //s.AppendLine($"Parked: {parked}");
+            int[] len = { streetAddress.Length, zipcode.Length, city.Length, country.Length };
+            if (len.Sum() > 0)
+            {
+                s.AppendLine("\nPOSTAL ADDRESS:");
+                if (len[0] > 0) s.AppendLine($"Street: {streetAddress}");
+                if (len[1] > 0 && len[2] > 0)
+                    s.AppendLine($"Place: {zipcode} {city}");
+                else
+                {
+                    if (len[1] > 0) s.AppendLine($"Zipcode: {zipcode}");
+                    if (len[2] > 0) s.AppendLine($"City: {city}");
+                }
+                if (len[3] > 0) s.AppendLine($"Country: {country}");
+            }
 
-            //if (!fuelType.Equals(FuelType.NotAvailable)) s.AppendLine($"Fuel Type: {fuelType}");
-
-            //if (color.Length > 0) s.AppendLine($"Color: {color}");
-            //if (lengthMeters > 0) s.AppendLine($"Lenght: {Math.Round(lengthMeters, 2)} meters");
-            //if (heigthMeters > 0) s.AppendLine($"Height: {Math.Round(heigthMeters, 2)} meters");
-            //if (weight_kg > 0) s.AppendLine($"Weight: {weight_kg} kilograms");
-
-            //if (note.Length > 0) s.AppendLine($"Note: {note}");
-
-            //this.name = name;
-            //this.streetAddress = streeetAddress;
-            //this.zipCode = zipCode;
-            //this.city = city;
-            //this.country = country;
+            s.AppendLine("\nGENERAL VEHICLE LIMITATIONS:");
+            s.AppendLine($"Max Vehicle Lenght: {Math.Round(Consts.MAX_GARAGE_LOT_LENGHT_meters, 2)} meters");
+            s.AppendLine($"Max Vehicle Height: {Math.Round(Consts.MAX_GARAGE_CEILING_HEIGHT_meters, 2)} meters");
+            s.AppendLine($"Max Vehicle Weight: {Math.Round(Consts.MAX_GARAGE_VEHICLE_WEIGHT_kg, 2)} kilograms");
 
             return s.ToString();
         }
-
     }
 }

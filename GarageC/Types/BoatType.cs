@@ -2,10 +2,10 @@
 {
     internal enum BoatType
     {
+        NotAvailable,
         Sailboat,
         Powerboat,
-        Yacht,
-        NotAvailable
+        Yacht
     }
 
 }

@@ -8,10 +8,10 @@ namespace GarageC
 {
     internal enum CarType
     {
+        NotAvailable,
         Sedan,
         Convertible, // Cabriolet or cab (roofless or fold-down roof) in swedish
         Hatchback, // halvkombi or just kombi in swedish
-        Van, // Paketbil in swedish
-        NotAvailable
+        Van // Paketbil in swedish
     }
 }

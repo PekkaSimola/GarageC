@@ -2,6 +2,8 @@
 {
     internal interface IVehicle
     {
-        public string ToText();
+        internal string[] BodyToDisplay(string[] subClass = null, string ParkingText = "");
+        internal string TitleText();
+        internal string ToText();
     }
 }

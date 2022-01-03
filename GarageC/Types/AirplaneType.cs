@@ -2,8 +2,8 @@
 {
     internal enum AirplaneType
     {
+        NotAvailable,
         Jet, 
-        Propeller,
-        NotAvailable
+        Propeller
     }
 }
